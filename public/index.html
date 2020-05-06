@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Summer Coding</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1, IE=9">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Rox">
+    <meta name="viewport" content="initial-scale=1 maximum-scale=1 user-scalable=0 minimal-ui" />
+
+    <link rel="stylesheet" href="css/stylesheet.css" type="text/css" charset="utf-8" />
+    <script src="js/phaser.js"></script>
+
+    <script src="src/global.js"></script>
+    <script src="src/states/boot.js"></script>
+    <script src="src/states/preloader.js"></script>
+    <script src="src/states/game.js"></script>
+    <script src="src/states/start-round.js"></script>
+
+    <script src="src/objects/brick.js"></script>
+    <script src="src/objects/fuel.js"></script>
+    <script src="src/objects/grass.js"></script>
+    <script src="src/objects/star.js"></script>
+    <script src="src/objects/stone.js"></script>
+    <script src="src/objects/tank.js"></script>
+    <script src="src/objects/water.js"></script>
+
+    <script src="src/ui/star.js"></script>
+    <script src="src/ui/fuel.js"></script>
+    <script src="src/ui/fuel-used.js"></script>
+    <script src="src/ui/rank-item.js"></script>
+    <script src="src/ui/rank-list.js"></script>
+
+</head>
+
+<body>
+
+    <div id="game"></div>
+    <div>
+        Select map file: <input type="file" id="mapIput">
+    </div>
+    <div>
+        Select path file: <input type="file" id="resultInput">
+    </div>
+    <script type="text/javascript">
+        var MAP;
+        var PATH;
+
+        window.onload = function () {
+
+            var mapIput = document.getElementById('mapIput');
+            var resultInput = document.getElementById('resultInput');
+
+            mapIput.addEventListener('change', function (e) {
+                var file = mapIput.files[0];
+                if (!file)
+                    return;
+
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var lines = reader.result.split("\n");
+
+                    var startIndex = lines[0].split(" ");
+                    var startTank = { i: parseInt(startIndex[0]), j: parseInt(startIndex[1]) };
+
+                    var fuelSize = parseInt(lines[1]);
+                    var mapSize = lines[2].split(" ");
+
+                    var mapRow = parseInt(mapSize[0]);
+                    var mapCol = parseInt(mapSize[1]);
+
+                    var map = [];
+                    for (var i = 0; i < mapRow; i++) {
+                        var objects = lines[i + 3].split(" ");
+                        map[i] = [];
+                        for (var j = 0; j < mapCol; j++) {
+                            map[i][j] = parseInt(objects[j]);
+                        }
+                    }
+
+                    var mapObject = {
+                        startIndex: startTank,
+                        fuelSize: fuelSize,
+                        mapSize: { col: mapCol, row: mapRow },
+                        map: map,
+                    }
+                    MAP = mapObject;
+                }
+
+                reader.readAsText(file);
+            });
+
+            resultInput.addEventListener('change', function (e) {
+                var file = resultInput.files[0];
+                var reader = new FileReader();
+                if (!file)
+                    return;
+
+                reader.onload = function (e) {
+                    var lines = reader.result.split("\n");
+                    var fileName = file.name;
+                    var teamInfo = fileName.split("_");
+                    var path = [];
+                    for (var line of lines) {
+                        var index = line.split(" ");
+                        if(index.length != 2){
+                            break;
+                        }
+                        path.push({ i: parseInt(index[0]), j: parseInt(index[1]) })
+                    }
+
+                    var resultObject = {
+                         path: path,
+                         teamInfo: {
+                             name: teamInfo[0]
+                         }
+                    }
+                    PATH = resultObject;
+                }
+
+                reader.readAsText(file);
+            });
+
+            var game = new Phaser.Game(1100, 600, Phaser.WEBGL, 'game');
+
+            game.state.add('Boot', SummerCoding.Boot);
+            game.state.add('Preloader', SummerCoding.Preloader);
+            game.state.add('StartRound', SummerCoding.StartRound);
+            game.state.add('EndRound', SummerCoding.EndRound);
+            game.state.add('Game', SummerCoding.Game);
+            game.state.start('Boot');
+        }
+    </script>
+
+</body>
+
+</html>
