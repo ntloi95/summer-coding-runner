@@ -1,6 +1,6 @@
 # summer-coding-runner
 
-Back up for event Fossil Summer Coding for student 2020
+Back up source code for event Fossil Summer Coding for students 2020
 
 Live demo: https://summercoding.herokuapp.com/
 
